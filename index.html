@@ -1,0 +1,218 @@
+import React, { useState } from 'react';
+import { 
+  ClipboardCheck, 
+  ShieldCheck, 
+  Search, 
+  FileEdit, 
+  Printer, 
+  RotateCcw, 
+  Check, 
+  X, 
+  EyeOff,
+  ChevronRight,
+  Info
+} from 'lucide-react';
+
+const QuestionField = ({ label, field, value, onChange, placeholder, isPrintMode }) => (
+  <div className={`mb-6 ${isPrintMode ? 'break-inside-avoid' : ''}`}>
+    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+      {label}
+    </label>
+    {isPrintMode ? (
+      <div className="p-3 bg-gray-50 border-l-4 border-orange-400 text-sm text-gray-800 whitespace-pre-wrap min-h-[40px]">
+        {value || <span className="text-gray-300 italic text-[11px]">Sin respuesta</span>}
+      </div>
+    ) : (
+      <textarea
+        className="w-full p-3 bg-white border-2 border-gray-100 rounded-xl focus:border-orange-400 focus:ring-0 transition-all text-sm text-gray-700 placeholder-gray-300 min-h-[100px] resize-none"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(field, e.target.value)}
+      />
+    )}
+  </div>
+);
+
+const App = () => {
+  const [activeTab, setActiveTab] = useState(0);
+  const [isPrintMode, setIsPrintMode] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    // Tab 1
+    basicNeed: "", desiredOutcome: "", beneficiaries: "",
+    // Tab 2
+    strategicAlignment: "", companyBenefits: "", implementationPlan: "",
+    // Tab 3
+    previousApproaches: "", othersApproaches: "", constraints: "",
+    // Tab 4
+    subProblems: "", requirements: "", solvers: "", statementLanguage: "", submissionNeeds: "", incentives: "", evaluationSuccess: ""
+  });
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleReset = () => {
+    setFormData(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: "" }), {}));
+    setShowResetConfirm(false);
+  };
+
+  const tabs = [
+    { id: 0, title: "1. Establecer Necesidad", icon: ClipboardCheck, color: "orange" },
+    { id: 1, title: "2. Justificar", icon: ShieldCheck, color: "blue" },
+    { id: 2, title: "3. Contextualizar", icon: Search, color: "purple" },
+    { id: 3, title: "4. Definición Final", icon: FileEdit, color: "green" }
+  ];
+
+  return (
+    <div className={`min-h-screen ${isPrintMode ? 'bg-white p-0' : 'bg-gray-50 p-4 md:p-8'} font-sans transition-colors duration-300`}>
+      <div className="max-w-4xl mx-auto">
+        
+        {/* Header UI */}
+        {!isPrintMode && (
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-black text-gray-900 tracking-tight text-center md:text-left uppercase">MARCO DE DEFINICIÓN <span className="text-orange-500 italic">DE PROBLEMAS</span></h1>
+              <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest text-center md:text-left">Estrategia de Thomas Wedell-Wedellsborg</p>
+            </div>
+            
+            <div className="flex gap-2">
+              {!showResetConfirm ? (
+                <button onClick={() => setShowResetConfirm(true)} className="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Limpiar todo">
+                  <RotateCcw size={20} />
+                </button>
+              ) : (
+                <div className="flex items-center gap-1 bg-red-50 p-1 rounded-lg border border-red-100">
+                  <button onClick={handleReset} className="p-1.5 bg-red-500 text-white rounded shadow-sm"><Check size={14} /></button>
+                  <button onClick={() => setShowResetConfirm(false)} className="p-1.5 bg-gray-200 text-gray-600 rounded"><X size={14} /></button>
+                </div>
+              )}
+              <button 
+                onClick={() => setIsPrintMode(true)}
+                className="flex items-center gap-2 px-5 py-2 text-xs font-black text-white bg-gray-900 rounded-xl hover:bg-black transition-all shadow-lg shadow-gray-200 active:scale-95 uppercase"
+              >
+                <Printer size={16} /> Exportar PDF
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tab Navigation UI */}
+        {!isPrintMode && (
+          <div className="flex overflow-x-auto gap-2 mb-6 no-scrollbar pb-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-3 rounded-xl font-bold text-[10px] uppercase whitespace-nowrap transition-all border-2
+                  ${activeTab === tab.id 
+                    ? 'bg-white border-orange-500 text-orange-600 shadow-sm' 
+                    : 'bg-white border-transparent text-gray-400 hover:border-gray-200'}`}
+              >
+                <tab.icon size={14} />
+                {tab.title}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Export Mode Instructions */}
+        {isPrintMode && (
+          <div className="bg-orange-600 text-white p-6 rounded-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4 print:hidden">
+            <div className="flex items-center gap-4">
+              <Printer size={32} />
+              <div>
+                <h2 className="font-black uppercase tracking-tight text-lg leading-tight">Documento Listo para Exportar</h2>
+                <p className="text-xs opacity-90 mt-1">1. Presiona <strong>Ctrl + P</strong>  |  2. En destino elige <strong>"Guardar como PDF"</strong></p>
+              </div>
+            </div>
+            <button onClick={() => setIsPrintMode(false)} className="bg-white text-orange-600 px-6 py-2 rounded-full font-bold text-[10px] uppercase hover:bg-orange-50">
+              Volver a la edición
+            </button>
+          </div>
+        )}
+
+        {/* Form Content */}
+        <div className={`bg-white rounded-3xl ${isPrintMode ? 'p-0 shadow-none' : 'p-8 shadow-xl border border-gray-100'} transition-all`}>
+          
+          {/* TAB 1: ESTABLISH NEED */}
+          {(activeTab === 0 || isPrintMode) && (
+            <section className={isPrintMode ? 'mb-12 border-b-2 border-gray-100 pb-8' : ''}>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-orange-100 text-orange-600 rounded-lg"><ClipboardCheck /></div>
+                <h2 className="text-xl font-black text-gray-800">1. Establecer la Necesidad de una Solución</h2>
+              </div>
+              <QuestionField label="¿Cuál es la necesidad básica?" field="basicNeed" value={formData.basicNeed} onChange={handleChange} placeholder="Describe el problema principal o la brecha actual..." isPrintMode={isPrintMode} />
+              <QuestionField label="¿Cuál es el resultado deseado?" field="desiredOutcome" value={formData.desiredOutcome} onChange={handleChange} placeholder="¿Cómo se ve el éxito?" isPrintMode={isPrintMode} />
+              <QuestionField label="¿Quién se beneficia y por qué?" field="beneficiaries" value={formData.beneficiaries} onChange={handleChange} placeholder="Stakeholders, usuarios finales, áreas de negocio..." isPrintMode={isPrintMode} />
+            </section>
+          )}
+
+          {/* TAB 2: JUSTIFY NEED */}
+          {(activeTab === 1 || isPrintMode) && (
+            <section className={isPrintMode ? 'mb-12 border-b-2 border-gray-100 pb-8' : ''}>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg"><ShieldCheck /></div>
+                <h2 className="text-xl font-black text-gray-800">2. Justificar la Necesidad</h2>
+              </div>
+              <QuestionField label="¿Está el esfuerzo alineado con nuestra estrategia?" field="strategicAlignment" value={formData.strategicAlignment} onChange={handleChange} placeholder="¿Cómo apoya esto nuestro roadmap?" isPrintMode={isPrintMode} />
+              <QuestionField label="¿Cuáles son los beneficios deseados y cómo los mediremos?" field="companyBenefits" value={formData.companyBenefits} onChange={handleChange} placeholder="KPIs, métricas, ROI esperado..." isPrintMode={isPrintMode} />
+              <QuestionField label="¿Cómo aseguraremos que la solución se implemente?" field="implementationPlan" value={formData.implementationPlan} onChange={handleChange} placeholder="Soporte, recursos, plan de adopción..." isPrintMode={isPrintMode} />
+            </section>
+          )}
+
+          {/* TAB 3: CONTEXTUALIZE */}
+          {(activeTab === 2 || isPrintMode) && (
+            <section className={isPrintMode ? 'mb-12 border-b-2 border-gray-100 pb-8' : ''}>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-purple-100 text-purple-600 rounded-lg"><Search /></div>
+                <h2 className="text-xl font-black text-gray-800">3. Contextualizar el Problema</h2>
+              </div>
+              <QuestionField label="¿Qué enfoques hemos intentado antes?" field="previousApproaches" value={formData.previousApproaches} onChange={handleChange} placeholder="Historia interna del problema..." isPrintMode={isPrintMode} />
+              <QuestionField label="¿Qué han intentado otros?" field="othersApproaches" value={formData.othersApproaches} onChange={handleChange} placeholder="Investigación de mercado, otros equipos, competencia..." isPrintMode={isPrintMode} />
+              <QuestionField label="¿Cuáles son las restricciones internas y externas?" field="constraints" value={formData.constraints} onChange={handleChange} placeholder="Presupuesto, tiempo, tecnología, regulaciones..." isPrintMode={isPrintMode} />
+            </section>
+          )}
+
+          {/* TAB 4: WRITE STATEMENT */}
+          {(activeTab === 3 || isPrintMode) && (
+            <section>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-green-100 text-green-600 rounded-lg"><FileEdit /></div>
+                <h2 className="text-xl font-black text-gray-800">4. Redactar la Declaración del Problema</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <QuestionField label="¿Es el problema en realidad varios problemas?" field="subProblems" value={formData.subProblems} onChange={handleChange} placeholder="Desglósalo en partes más pequeñas..." isPrintMode={isPrintMode} />
+                <QuestionField label="¿Qué requisitos debe cumplir una solución?" field="requirements" value={formData.requirements} onChange={handleChange} placeholder="Indispensables vs deseables..." isPrintMode={isPrintMode} />
+                <QuestionField label="¿Qué perfiles solucionadores debemos involucrar?" field="solvers" value={formData.solvers} onChange={handleChange} placeholder="Experiencia o áreas necesarias..." isPrintMode={isPrintMode} />
+                <QuestionField label="¿Qué información y lenguaje debe incluir la declaración?" field="statementLanguage" value={formData.statementLanguage} onChange={handleChange} placeholder="Jerga técnica, datos clave, contexto..." isPrintMode={isPrintMode} />
+                <QuestionField label="¿Qué deben entregar los solucionadores?" field="submissionNeeds" value={formData.submissionNeeds} onChange={handleChange} placeholder="Entregables, prototipos, planes..." isPrintMode={isPrintMode} />
+                <QuestionField label="¿Qué incentivos necesitan los solucionadores?" field="incentives" value={formData.incentives} onChange={handleChange} placeholder="Motivación, presupuesto, reconocimiento..." isPrintMode={isPrintMode} />
+              </div>
+              <QuestionField label="¿Cómo se evaluarán las soluciones y se medirá el éxito?" field="evaluationSuccess" value={formData.evaluationSuccess} onChange={handleChange} placeholder="Criterios finales de evaluación..." isPrintMode={isPrintMode} />
+            </section>
+          )}
+        </div>
+
+        {/* Footer Info */}
+        {!isPrintMode && (
+          <div className="mt-8 flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 text-[9px] text-gray-400 font-bold uppercase tracking-widest">
+            <span>Marco de Definición de Problemas</span>
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1"><Info size={12} /> Herramienta Estratégica HBR</span>
+            </div>
+          </div>
+        )}
+        
+        {isPrintMode && (
+          <div className="mt-12 pt-6 border-t text-center text-[10px] text-gray-400 italic">
+            Documento de Estrategia | Basado en Thomas Wedell-Wedellsborg
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default App;
